@@ -367,8 +367,17 @@ export default function App() {
     (async () => {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
-        if (raw) setSavedProducts(JSON.parse(raw));
-      } catch (e) {}
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            setSavedProducts(parsed);
+          } else {
+            setSavedProducts([]);
+          }
+        }
+      } catch (e) {
+        setSavedProducts([]);
+      }
     })();
   }, []);
 
@@ -551,6 +560,7 @@ export default function App() {
             <Text style={styles.fieldLabel}>Persentase Susut Bahan Mentah (%):</Text>
             <TextInput
               keyboardType="numeric"
+              maxLength={2}
               placeholder="Misal: 15 (ikan dibersihkan insang susut 15%)"
               value={wastePercent}
               onChangeText={(t) => setWastePercent(t.replace(/[^0-9]/g, ''))}
@@ -575,6 +585,7 @@ export default function App() {
             {materials.map((item, idx) => (
               <View key={item.id} style={styles.dynamicRow}>
                 <TextInput
+                  maxLength={60}
                   placeholder="Nama Bahan (Bawang/Lele)"
                   value={item.name}
                   onChangeText={(t) => {
@@ -586,11 +597,12 @@ export default function App() {
                 />
                 <TextInput
                   keyboardType="numeric"
+                  maxLength={12}
                   placeholder="Biaya (Rp)"
                   value={item.amount ? item.amount.toString() : ''}
                   onChangeText={(t) => {
                     const u = [...materials];
-                    u[idx].amount = Number(t.replace(/[^0-9]/g, ''));
+                    u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
                     setMaterials(u);
                   }}
                   style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
@@ -631,6 +643,7 @@ export default function App() {
             {overheads.map((item, idx) => (
               <View key={item.id} style={styles.dynamicRow}>
                 <TextInput
+                  maxLength={60}
                   placeholder="Kemasan / Stiker / Gas / Listrik"
                   value={item.name}
                   onChangeText={(t) => {
@@ -642,11 +655,12 @@ export default function App() {
                 />
                 <TextInput
                   keyboardType="numeric"
+                  maxLength={12}
                   placeholder="Biaya (Rp)"
                   value={item.amount ? item.amount.toString() : ''}
                   onChangeText={(t) => {
                     const u = [...overheads];
-                    u[idx].amount = Number(t.replace(/[^0-9]/g, ''));
+                    u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
                     setOverheads(u);
                   }}
                   style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
@@ -718,6 +732,7 @@ export default function App() {
                 <Text style={styles.inputPrefix}>Rp</Text>
                 <TextInput
                   keyboardType="numeric"
+                  maxLength={12}
                   value={sellingPrice}
                   onChangeText={(t) => setSellingPrice(t.replace(/[^0-9]/g, ''))}
                   style={styles.inputHeroPrice}
