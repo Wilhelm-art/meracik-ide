@@ -43,3 +43,8 @@ yarn-error.*
 # playwright
 playwright-report/
 test-results/
+
+# builds & artifacts
+*.apk
+*.aab
+*.png
