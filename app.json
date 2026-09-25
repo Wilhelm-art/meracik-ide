@@ -19,6 +19,12 @@
       },
       "predictiveBackGestureEnabled": false
     },
+    "updates": {
+      "url": "https://u.expo.dev/f96dd22d-d912-4fbd-b6d6-1a70df1f4255"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
