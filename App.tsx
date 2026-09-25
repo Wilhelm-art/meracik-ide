@@ -131,29 +131,45 @@ const convertUnitCost = (
 };
 
 // ==========================================
-// 3. KOMPONEN PENDUKUNG (COMPONENTS)
+// 3. KOMPONEN PENDUKUNG (UI COMPONENTS)
 // ==========================================
+
+/**
+ * Margin Badge dengan palet semantik shadcn & visual dot indikator
+ */
 const MarginBadge: React.FC<{ margin: number }> = ({ margin }) => {
   let bg = '#DCFCE7';
-  let textCol = '#16A34A';
-  let label = '✅ Sehat & Pas untuk Offline';
+  let textCol = '#15803D';
+  let borderCol = '#86EFAC';
+  let dotCol = '#22C55E';
+  let label = 'Sehat & Pas untuk Offline';
 
   if (margin < 0) {
     bg = '#FEE2E2';
-    textCol = '#DC2626';
-    label = '⛔ RUGI (Harga di bawah Modal!)';
+    textCol = '#B91C1C';
+    borderCol = '#FCA5A5';
+    dotCol = '#EF4444';
+    label = 'RUGI (Harga di bawah Modal!)';
   } else if (margin < 20) {
     bg = '#FEF3C7';
-    textCol = '#D97706';
-    label = '⚠️ Rawan Tekor / Terlalu Tipis';
+    textCol = '#B45309';
+    borderCol = '#FCD34D';
+    dotCol = '#F59E0B';
+    label = 'Rawan Tekor / Terlalu Tipis';
   } else if (margin > 40) {
     bg = '#DBEAFE';
-    textCol = '#2563EB';
-    label = '🌟 Margin Tebal / Premium';
+    textCol = '#1D4ED8';
+    borderCol = '#93C5FD';
+    dotCol = '#3B82F6';
+    label = 'Margin Tebal / Premium';
   }
 
   return (
-    <View testID="badge-margin" style={[styles.badge, { backgroundColor: bg }]}>
+    <View
+      testID="badge-margin"
+      style={[styles.badge, { backgroundColor: bg, borderColor: borderCol }]}
+    >
+      <View style={[styles.badgeDot, { backgroundColor: dotCol }]} />
       <Text style={[styles.badgeText, { color: textCol }]}>
         {label} ({margin}%)
       </Text>
@@ -161,6 +177,9 @@ const MarginBadge: React.FC<{ margin: number }> = ({ margin }) => {
   );
 };
 
+/**
+ * Modal Pintar Konversi Satuan & Takaran Bahan Baku
+ */
 const UnitConverterModal: React.FC<{
   visible: boolean;
   onClose: () => void;
@@ -189,9 +208,19 @@ const UnitConverterModal: React.FC<{
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View testID="converter-modal" style={styles.modalSheet}>
-          <Text style={styles.modalTitle}>Bantu Hitung Satuan Takaran</Text>
-          <Text style={styles.modalSubtitle}>Hitung otomatis modal bahan sachet / gram</Text>
+          <View style={styles.modalGrabber} />
 
+          <View style={styles.modalHeaderRow}>
+            <View>
+              <Text style={styles.modalTitle}>Bantu Hitung Satuan Takaran</Text>
+              <Text style={styles.modalSubtitle}>Hitung otomatis modal bahan sachet / gram</Text>
+            </View>
+            <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn}>
+              <Text style={styles.modalCloseBtnText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Segmented Tab Bar */}
           <View style={styles.tabContainer}>
             <TouchableOpacity
               testID="converter-tab-weight"
@@ -199,7 +228,7 @@ const UnitConverterModal: React.FC<{
               style={[styles.tab, mode === 'weight' && styles.tabActive]}
             >
               <Text style={[styles.tabText, mode === 'weight' && styles.tabTextActive]}>
-                Timbangan (Kg ➔ Gram)
+                ⚖️ Timbangan (Kg ➔ Gram)
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -208,60 +237,78 @@ const UnitConverterModal: React.FC<{
               style={[styles.tab, mode === 'packaging' && styles.tabActive]}
             >
               <Text style={[styles.tabText, mode === 'packaging' && styles.tabTextActive]}>
-                Kemasan (Pack ➔ Sachet)
+                📦 Kemasan (Pack ➔ Sachet)
               </Text>
             </TouchableOpacity>
           </View>
 
           <Text style={styles.fieldLabel}>Harga Beli Kemasan / Grosir (Rp):</Text>
-          <TextInput
-            testID="converter-input-price"
-            keyboardType="numeric"
-            placeholder="Contoh: 40000"
-            value={price}
-            onChangeText={(t) => setPrice(t.replace(/[^0-9]/g, ''))}
-            style={styles.input}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputPrefixSmall}>Rp</Text>
+            <TextInput
+              testID="converter-input-price"
+              keyboardType="numeric"
+              placeholder="Contoh: 40000"
+              placeholderTextColor="#94A3B8"
+              value={price}
+              onChangeText={(t) => setPrice(t.replace(/[^0-9]/g, ''))}
+              style={styles.inputInner}
+            />
+          </View>
 
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
             <View style={{ flex: 1 }}>
               <Text style={styles.fieldLabel}>
                 {mode === 'weight' ? 'Kapasitas (Kg):' : 'Isi Kemasan (Pcs):'}
               </Text>
-              <TextInput
-                testID="converter-input-capacity"
-                keyboardType="numeric"
-                value={capacity}
-                onChangeText={(t) => setCapacity(t.replace(/[^0-9]/g, ''))}
-                style={styles.input}
-              />
+              <View style={styles.inputContainer}>
+                <TextInput
+                  testID="converter-input-capacity"
+                  keyboardType="numeric"
+                  placeholderTextColor="#94A3B8"
+                  value={capacity}
+                  onChangeText={(t) => setCapacity(t.replace(/[^0-9]/g, ''))}
+                  style={styles.inputInner}
+                />
+              </View>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.fieldLabel}>
                 {mode === 'weight' ? 'Pakai (Gram):' : 'Pakai (Sachet/Pcs):'}
               </Text>
-              <TextInput
-                testID="converter-input-usage"
-                keyboardType="numeric"
-                placeholder={mode === 'weight' ? 'Misal: 25' : 'Misal: 1'}
-                value={usage}
-                onChangeText={(t) => setUsage(t.replace(/[^0-9]/g, ''))}
-                style={styles.input}
-              />
+              <View style={styles.inputContainer}>
+                <TextInput
+                  testID="converter-input-usage"
+                  keyboardType="numeric"
+                  placeholder={mode === 'weight' ? 'Misal: 25' : 'Misal: 1'}
+                  placeholderTextColor="#94A3B8"
+                  value={usage}
+                  onChangeText={(t) => setUsage(t.replace(/[^0-9]/g, ''))}
+                  style={styles.inputInner}
+                />
+              </View>
             </View>
           </View>
 
+          {/* Preview Hasil Hitung */}
           <View style={styles.previewBox}>
             <Text style={styles.previewLabel}>Biaya Modal yang Terpakai:</Text>
-            <Text testID="converter-preview-cost" style={styles.previewValue}>Rp {formatRupiah(result)}</Text>
+            <Text testID="converter-preview-cost" style={styles.previewValue}>
+              Rp {formatRupiah(result)}
+            </Text>
+            <Text style={styles.previewSub}>
+              {mode === 'weight'
+                ? `Biaya per gram dihitung proporsional dari ${capacity || 0} Kg`
+                : `Biaya per satuan dihitung proporsional dari ${capacity || 0} pcs`}
+            </Text>
           </View>
 
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <TouchableOpacity testID="converter-btn-cancel" onPress={onClose} style={styles.btnModalCancel}>
               <Text style={styles.textModalCancel}>Batal</Text>
             </TouchableOpacity>
             <TouchableOpacity testID="converter-btn-apply" onPress={handleApply} style={styles.btnModalApply}>
-              <Text style={styles.textModalApply}>Pakai Nilai Ini</Text>
+              <Text style={styles.textModalApply}>Terapkan Nilai</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -270,6 +317,9 @@ const UnitConverterModal: React.FC<{
   );
 };
 
+/**
+ * Kartu Struk Ringkasan Modal & Harga (Exportable ke WhatsApp)
+ */
 const ShareableReceiptCard: React.FC<{
   productName: string;
   totalHPP: number;
@@ -308,38 +358,65 @@ const ShareableReceiptCard: React.FC<{
   };
 
   return (
-    <View style={{ marginTop: 14 }}>
+    <View style={{ marginTop: 16 }}>
       <View ref={receiptRef} collapsable={false} style={styles.receiptContainer}>
-        <Text style={styles.receiptTag}>RINGKASAN HARGA UMKM</Text>
-        <Text style={styles.receiptTitle}>{productName || 'Produk UMKM'}</Text>
-        <View style={styles.divider} />
+        {/* Header Struk */}
+        <View style={styles.receiptTopHeader}>
+          <View style={styles.receiptBrandBadge}>
+            <Text style={styles.receiptTag}>MERACIK IDE • STRUK MODAL</Text>
+          </View>
+          <Text style={styles.receiptDate}>{new Date().toLocaleDateString('id-ID')}</Text>
+        </View>
 
-        <View style={styles.rowBetween}>
-          <Text style={styles.textGray}>Modal Pokok (HPP) / Pcs:</Text>
-          <Text style={styles.textBold}>Rp {formatRupiah(totalHPP)}</Text>
+        <Text style={styles.receiptTitle}>{productName || 'Produk UMKM'}</Text>
+        <Text style={styles.receiptDesc}>Kalkulasi Akurat HPP & Simulasi Margin Keuntungan</Text>
+
+        <View style={styles.dashedDivider} />
+
+        {/* Baris Rincian Keuangan */}
+        <View style={styles.receiptRow}>
+          <Text style={styles.receiptRowLabel}>Modal Pokok (HPP) / Pcs</Text>
+          <Text style={styles.receiptRowValue}>Rp {formatRupiah(totalHPP)}</Text>
         </View>
-        <View style={styles.rowBetween}>
-          <Text style={styles.textGray}>Rencana Harga Jual:</Text>
-          <Text style={styles.textBold}>Rp {formatRupiah(sellingPrice)}</Text>
+        <View style={styles.receiptRow}>
+          <Text style={styles.receiptRowLabel}>Rencana Harga Jual</Text>
+          <Text style={styles.receiptRowValue}>Rp {formatRupiah(sellingPrice)}</Text>
         </View>
-        <View style={styles.rowBetween}>
-          <Text style={styles.textGray}>Keuntungan Bersih:</Text>
-          <Text style={[styles.textBold, { color: netProfit >= 0 ? '#16A34A' : '#DC2626' }]}>
+        <View style={styles.receiptRow}>
+          <Text style={styles.receiptRowLabel}>Keuntungan Bersih / Pcs</Text>
+          <Text
+            style={[
+              styles.receiptRowValue,
+              { color: netProfit >= 0 ? '#16A34A' : '#DC2626' },
+            ]}
+          >
             Rp {formatRupiah(netProfit)} ({marginPercent}%)
           </Text>
         </View>
-        <View style={styles.divider} />
 
-        <Text style={{ fontSize: 12, color: '#64748B' }}>Rekomendasi Standar Sehat (Margin 35%):</Text>
-        <Text style={styles.recPriceText}>Rp {formatRupiah(recommendedPrice)}</Text>
-        <Text style={styles.receiptFooter}>Dihitung via Kalkulator Modal UMKM</Text>
+        <View style={styles.dashedDivider} />
+
+        {/* Rekomendasi Harga Sehat */}
+        <View style={styles.receiptRecBox}>
+          <Text style={styles.receiptRecLabel}>Rekomendasi Standar Sehat (Margin 35%):</Text>
+          <Text style={styles.receiptRecValue}>Rp {formatRupiah(recommendedPrice)}</Text>
+        </View>
+
+        <Text style={styles.receiptFooter}>
+          Dibuat secara otomatis dengan Aplikasi Meracik Ide • Anti Rugi UMKM
+        </Text>
       </View>
 
-      <TouchableOpacity testID="btn-share-whatsapp" disabled={sharing} onPress={handleShare} style={styles.btnShareWA}>
+      <TouchableOpacity
+        testID="btn-share-whatsapp"
+        disabled={sharing}
+        onPress={handleShare}
+        style={styles.btnShareWA}
+      >
         {sharing ? (
           <ActivityIndicator color="#FFF" />
         ) : (
-          <Text style={styles.btnShareWAText}>Bagikan Gambar Struk ke WhatsApp</Text>
+          <Text style={styles.btnShareWAText}>📤 Bagikan Gambar Struk ke WhatsApp</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -499,44 +576,77 @@ export default function App() {
     <View style={styles.safeArea}>
       <StatusBar style="dark" backgroundColor="#F8FAFC" />
 
+      {/* Top Brand Bar */}
+      <View style={styles.brandNavbar}>
+        <View style={styles.brandLogoRow}>
+          <View style={styles.brandIconBox}>
+            <Text style={styles.brandIconText}>💡</Text>
+          </View>
+          <View>
+            <Text style={styles.brandTitle}>Meracik Ide</Text>
+            <Text style={styles.brandTagline}>Kalkulator Modal & Smart Pricing UMKM</Text>
+          </View>
+        </View>
+      </View>
+
       {/* ================= LAYAR 1: HOME ================= */}
       {screen === 'home' && (
         <View style={styles.container}>
           <View style={styles.headerRow}>
             <View>
               <Text style={styles.pageTitle}>Katalog Resep Modal</Text>
-              <Text style={styles.pageSubtitle}>{savedProducts.length} / {MAX_SAVED_PRODUCTS} Resep Tersimpan Offline</Text>
+              <Text style={styles.pageSubtitle}>
+                {savedProducts.length} / {MAX_SAVED_PRODUCTS} Resep Tersimpan Offline
+              </Text>
             </View>
             <TouchableOpacity testID="btn-start-new" onPress={handleStartNew} style={styles.btnPrimarySmall}>
-              <Text style={styles.btnPrimarySmallText}>+ Buat Baru</Text>
+              <Text style={styles.btnPrimarySmallText}>✨ + Buat Baru</Text>
             </TouchableOpacity>
           </View>
 
           {savedProducts.length === 0 ? (
             <View style={styles.centerBox}>
+              <View style={styles.emptyIconCircle}>
+                <Text style={styles.emptyIconEmoji}>📋</Text>
+              </View>
               <Text style={styles.emptyTitle}>Belum Ada Resep Tersimpan</Text>
               <Text style={styles.emptyDesc}>
-                Mulai hitung HPP produk lele marinasi, kerajinan, atau jualan Anda agar tidak rugi pasang harga.
+                Mulai hitung HPP produk lele marinasi, kerajinan, atau jualan Anda agar tidak tekor saat pasang harga.
               </Text>
               <TouchableOpacity testID="empty-btn-start" onPress={handleStartNew} style={styles.btnLarge}>
-                <Text style={styles.btnLargeText}>Mulai Hitung Modal</Text>
+                <Text style={styles.btnLargeText}>+ Mulai Hitung Modal Sekarang</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <FlatList
               data={savedProducts}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingBottom: 30 }}
+              contentContainerStyle={{ paddingBottom: 40 }}
               renderItem={({ item }) => (
-                <TouchableOpacity testID={`card-product-${item.id}`} onPress={() => handleOpenProduct(item)} style={styles.productCard}>
+                <TouchableOpacity
+                  testID={`card-product-${item.id}`}
+                  onPress={() => handleOpenProduct(item)}
+                  style={styles.productCard}
+                  activeOpacity={0.7}
+                >
                   <View style={{ flex: 1 }}>
                     <Text style={styles.productName}>{item.name}</Text>
-                    <Text style={styles.productPrice}>Rencana Jual: Rp {formatRupiah(item.targetSellingPrice)}</Text>
-                    <Text style={styles.productMeta}>
-                      {item.materials.length} Bahan • {item.overheads.length} Biaya Tambahan
-                    </Text>
+                    <View style={styles.productBadgeRow}>
+                      <View style={styles.productPricePill}>
+                        <Text style={styles.productPriceText}>
+                          Rp {formatRupiah(item.targetSellingPrice)}
+                        </Text>
+                      </View>
+                      <Text style={styles.productMeta}>
+                        📦 {item.materials.length} Bahan • 🏷️ {item.overheads.length} Biaya
+                      </Text>
+                    </View>
                   </View>
-                  <TouchableOpacity testID={`btn-delete-product-${item.id}`} onPress={() => handleDeleteProduct(item.id)} style={styles.btnDeleteTag}>
+                  <TouchableOpacity
+                    testID={`btn-delete-product-${item.id}`}
+                    onPress={() => handleDeleteProduct(item.id)}
+                    style={styles.btnDeleteTag}
+                  >
                     <Text style={styles.btnDeleteTagText}>Hapus</Text>
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -549,145 +659,175 @@ export default function App() {
       {/* ================= LAYAR 2: RECIPE BUILDER ================= */}
       {screen === 'builder' && (
         <View style={styles.container}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 90 }}>
-            <Text style={styles.pageTitle}>Rincian Modal Produk</Text>
-
-            <Text style={styles.fieldLabel}>Nama Produk:</Text>
-            <TextInput
-              testID="input-product-name"
-              maxLength={80}
-              placeholder="Misal: Lele Marinasi Siap Masak 500g"
-              value={productName}
-              onChangeText={setProductName}
-              style={styles.input}
-            />
-
-            <Text style={styles.fieldLabel}>Persentase Susut Bahan Mentah (%):</Text>
-            <TextInput
-              testID="input-waste-percent"
-              keyboardType="numeric"
-              maxLength={2}
-              placeholder="Misal: 15 (ikan dibersihkan insang susut 15%)"
-              value={wastePercent}
-              onChangeText={(t) => setWastePercent(t.replace(/[^0-9]/g, ''))}
-              style={styles.input}
-            />
-
-            {/* Bahan Baku */}
-            <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Komponen Bahan Baku</Text>
-              <TouchableOpacity
-                testID="btn-add-material"
-                onPress={() =>
-                  setMaterials([
-                    ...materials,
-                    { id: Date.now().toString(), type: 'material', name: '', amount: 0 },
-                  ])
-                }
-              >
-                <Text style={styles.linkText}>+ Tambah Bahan</Text>
-              </TouchableOpacity>
+          <ScrollView contentContainerStyle={{ paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
+            <View style={{ marginBottom: 14 }}>
+              <Text style={styles.pageTitle}>Rincian Modal Produk</Text>
+              <Text style={styles.pageSubtitle}>Catat bahan mentah, takaran, dan biaya operasional</Text>
             </View>
 
-            {materials.map((item, idx) => (
-              <View key={item.id} style={styles.dynamicRow}>
-                <TextInput
-                  testID={`input-material-name-${idx}`}
-                  maxLength={60}
-                  placeholder="Nama Bahan (Bawang/Lele)"
-                  value={item.name}
-                  onChangeText={(t) => {
-                    const u = [...materials];
-                    u[idx].name = t;
-                    setMaterials(u);
-                  }}
-                  style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
-                />
-                <TextInput
-                  testID={`input-material-amount-${idx}`}
-                  keyboardType="numeric"
-                  maxLength={12}
-                  placeholder="Biaya (Rp)"
-                  value={item.amount ? item.amount.toString() : ''}
-                  onChangeText={(t) => {
-                    const u = [...materials];
-                    u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
-                    setMaterials(u);
-                  }}
-                  style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
-                />
+            {/* Field Nama Produk */}
+            <View style={styles.formGroup}>
+              <Text style={styles.fieldLabel}>Nama Produk:</Text>
+              <TextInput
+                testID="input-product-name"
+                maxLength={80}
+                placeholder="Misal: Lele Marinasi Spesial 500g"
+                placeholderTextColor="#94A3B8"
+                value={productName}
+                onChangeText={setProductName}
+                style={styles.input}
+              />
+            </View>
+
+            {/* Field Susut Bahan */}
+            <View style={styles.formGroup}>
+              <View style={styles.labelWithHintRow}>
+                <Text style={styles.fieldLabel}>Persentase Susut Bahan Mentah (%):</Text>
+                <Text style={styles.labelHintText}>Insang, jeroan, tulang terbuang</Text>
+              </View>
+              <TextInput
+                testID="input-waste-percent"
+                keyboardType="numeric"
+                maxLength={2}
+                placeholder="Misal: 15 (ikan dibersihkan susut 15%)"
+                placeholderTextColor="#94A3B8"
+                value={wastePercent}
+                onChangeText={(t) => setWastePercent(t.replace(/[^0-9]/g, ''))}
+                style={styles.input}
+              />
+            </View>
+
+            {/* Komponen Bahan Baku */}
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionRow}>
+                <View>
+                  <Text style={styles.sectionTitle}>Komponen Bahan Baku</Text>
+                  <Text style={styles.sectionSubtitle}>{materials.length} Bahan Terdaftar</Text>
+                </View>
                 <TouchableOpacity
-                  testID={`btn-material-convert-${idx}`}
-                  onPress={() => {
-                    setActiveMaterialIdx(idx);
-                    setConverterVisible(true);
-                  }}
-                  style={styles.btnSmallIcon}
+                  testID="btn-add-material"
+                  onPress={() =>
+                    setMaterials([
+                      ...materials,
+                      { id: Date.now().toString(), type: 'material', name: '', amount: 0 },
+                    ])
+                  }
+                  style={styles.btnSectionAction}
                 >
-                  <Text style={{ fontSize: 16 }}>⚖️</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  testID={`btn-material-delete-${idx}`}
-                  onPress={() => setMaterials(materials.filter((_, i) => i !== idx))}
-                  style={styles.btnRowDelete}
-                >
-                  <Text style={styles.btnRowDeleteText}>✕</Text>
+                  <Text style={styles.btnSectionActionText}>+ Tambah Bahan</Text>
                 </TouchableOpacity>
               </View>
-            ))}
+
+              {materials.map((item, idx) => (
+                <View key={item.id} style={styles.dynamicRow}>
+                  <TextInput
+                    testID={`input-material-name-${idx}`}
+                    maxLength={60}
+                    placeholder="Nama Bahan (Bawang/Lele)"
+                    placeholderTextColor="#94A3B8"
+                    value={item.name}
+                    onChangeText={(t) => {
+                      const u = [...materials];
+                      u[idx].name = t;
+                      setMaterials(u);
+                    }}
+                    style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
+                  />
+                  <TextInput
+                    testID={`input-material-amount-${idx}`}
+                    keyboardType="numeric"
+                    maxLength={12}
+                    placeholder="Biaya (Rp)"
+                    placeholderTextColor="#94A3B8"
+                    value={item.amount ? item.amount.toString() : ''}
+                    onChangeText={(t) => {
+                      const u = [...materials];
+                      u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
+                      setMaterials(u);
+                    }}
+                    style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
+                  />
+                  <TouchableOpacity
+                    testID={`btn-material-convert-${idx}`}
+                    onPress={() => {
+                      setActiveMaterialIdx(idx);
+                      setConverterVisible(true);
+                    }}
+                    style={styles.btnConverterIcon}
+                  >
+                    <Text style={{ fontSize: 16 }}>⚖️</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    testID={`btn-material-delete-${idx}`}
+                    onPress={() => setMaterials(materials.filter((_, i) => i !== idx))}
+                    style={styles.btnRowDelete}
+                  >
+                    <Text style={styles.btnRowDeleteText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
 
             {/* Kemasan & Overhead */}
-            <View style={[styles.sectionRow, { marginTop: 18 }]}>
-              <Text style={styles.sectionTitle}>Kemasan & Operasional</Text>
-              <TouchableOpacity
-                testID="btn-add-overhead"
-                onPress={() =>
-                  setOverheads([
-                    ...overheads,
-                    { id: Date.now().toString(), type: 'overhead', name: '', amount: 0 },
-                  ])
-                }
-              >
-                <Text style={styles.linkText}>+ Tambah Biaya</Text>
-              </TouchableOpacity>
-            </View>
-
-            {overheads.map((item, idx) => (
-              <View key={item.id} style={styles.dynamicRow}>
-                <TextInput
-                  testID={`input-overhead-name-${idx}`}
-                  maxLength={60}
-                  placeholder="Kemasan / Stiker / Gas / Listrik"
-                  value={item.name}
-                  onChangeText={(t) => {
-                    const u = [...overheads];
-                    u[idx].name = t;
-                    setOverheads(u);
-                  }}
-                  style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
-                />
-                <TextInput
-                  testID={`input-overhead-amount-${idx}`}
-                  keyboardType="numeric"
-                  maxLength={12}
-                  placeholder="Biaya (Rp)"
-                  value={item.amount ? item.amount.toString() : ''}
-                  onChangeText={(t) => {
-                    const u = [...overheads];
-                    u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
-                    setOverheads(u);
-                  }}
-                  style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
-                />
+            <View style={[styles.sectionCard, { marginTop: 14 }]}>
+              <View style={styles.sectionRow}>
+                <View>
+                  <Text style={styles.sectionTitle}>Kemasan & Operasional</Text>
+                  <Text style={styles.sectionSubtitle}>{overheads.length} Biaya Tambahan</Text>
+                </View>
                 <TouchableOpacity
-                  testID={`btn-overhead-delete-${idx}`}
-                  onPress={() => setOverheads(overheads.filter((_, i) => i !== idx))}
-                  style={styles.btnRowDelete}
+                  testID="btn-add-overhead"
+                  onPress={() =>
+                    setOverheads([
+                      ...overheads,
+                      { id: Date.now().toString(), type: 'overhead', name: '', amount: 0 },
+                    ])
+                  }
+                  style={styles.btnSectionAction}
                 >
-                  <Text style={styles.btnRowDeleteText}>✕</Text>
+                  <Text style={styles.btnSectionActionText}>+ Tambah Biaya</Text>
                 </TouchableOpacity>
               </View>
-            ))}
+
+              {overheads.map((item, idx) => (
+                <View key={item.id} style={styles.dynamicRow}>
+                  <TextInput
+                    testID={`input-overhead-name-${idx}`}
+                    maxLength={60}
+                    placeholder="Kemasan / Stiker / Gas / Listrik"
+                    placeholderTextColor="#94A3B8"
+                    value={item.name}
+                    onChangeText={(t) => {
+                      const u = [...overheads];
+                      u[idx].name = t;
+                      setOverheads(u);
+                    }}
+                    style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
+                  />
+                  <TextInput
+                    testID={`input-overhead-amount-${idx}`}
+                    keyboardType="numeric"
+                    maxLength={12}
+                    placeholder="Biaya (Rp)"
+                    placeholderTextColor="#94A3B8"
+                    value={item.amount ? item.amount.toString() : ''}
+                    onChangeText={(t) => {
+                      const u = [...overheads];
+                      u[idx].amount = sanitizeNumber(Number(t.replace(/[^0-9]/g, '')));
+                      setOverheads(u);
+                    }}
+                    style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
+                  />
+                  <TouchableOpacity
+                    testID={`btn-overhead-delete-${idx}`}
+                    onPress={() => setOverheads(overheads.filter((_, i) => i !== idx))}
+                    style={styles.btnRowDelete}
+                  >
+                    <Text style={styles.btnRowDeleteText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
           </ScrollView>
 
           {/* Sticky Bottom Actions */}
@@ -715,18 +855,31 @@ export default function App() {
       {/* ================= LAYAR 3: PRICE SIMULATOR ================= */}
       {screen === 'simulator' && (
         <View style={styles.container}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+          <ScrollView contentContainerStyle={{ paddingBottom: 50 }} showsVerticalScrollIndicator={false}>
+            {/* Header Simulator */}
             <View style={styles.headerRow}>
-              <Text style={[styles.pageTitle, { flex: 1 }]}>Uji Harga: {productName}</Text>
-              <TouchableOpacity testID="btn-edit-recipe" onPress={() => setScreen('builder')} style={styles.btnEditOutline}>
-                <Text style={styles.btnEditOutlineText}>Edit Resep</Text>
+              <View style={{ flex: 1, marginRight: 10 }}>
+                <Text style={styles.pageTitle} numberOfLines={1}>
+                  Uji Harga: {productName}
+                </Text>
+                <Text style={styles.pageSubtitle}>Simulasi margin keuntungan & stress-test inflasi</Text>
+              </View>
+              <TouchableOpacity
+                testID="btn-edit-recipe"
+                onPress={() => setScreen('builder')}
+                style={styles.btnEditOutline}
+              >
+                <Text style={styles.btnEditOutlineText}>✏️ Edit Resep</Text>
               </TouchableOpacity>
             </View>
 
-            {/* Stress Test Pasar */}
+            {/* Stress Test Pasar (Inflasi) */}
             <View style={styles.card}>
-              <Text style={styles.cardLabel}>Pasar lagi naik harga? (Stress Test Bahan Mentah):</Text>
-              <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
+              <View style={styles.cardHeaderRow}>
+                <Text style={styles.cardLabel}>Pasar lagi naik harga? (Stress-Test Bahan):</Text>
+                <Text style={styles.cardHelperBadge}>Buffer Fluktuasi</Text>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 6 }}>
                 {[0, 10, 20, 30].map((rate) => (
                   <TouchableOpacity
                     testID={`chip-inflation-${rate}`}
@@ -742,11 +895,13 @@ export default function App() {
               </View>
             </View>
 
-            {/* Input Harga Jual Rencana */}
-            <View style={styles.card}>
-              <Text style={styles.cardLabel}>Rencana Harga Jual Anda:</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.inputPrefix}>Rp</Text>
+            {/* Input Harga Jual Rencana (Hero Card) */}
+            <View style={styles.heroCard}>
+              <Text style={styles.heroCardLabel}>Rencana Harga Jual Anda:</Text>
+              <View style={styles.heroPriceInputRow}>
+                <View style={styles.heroCurrencyPill}>
+                  <Text style={styles.heroCurrencyText}>Rp</Text>
+                </View>
                 <TextInput
                   testID="input-selling-price"
                   keyboardType="numeric"
@@ -756,16 +911,24 @@ export default function App() {
                   style={styles.inputHeroPrice}
                 />
               </View>
+              <Text style={styles.heroCardHint}>Ketik harga rencana untuk melihat langsung margin laba</Text>
             </View>
 
-            {/* Box Hasil Keuangan */}
-            <View style={[styles.card, { backgroundColor: '#0F172A' }]}>
-              <View style={styles.rowBetween}>
-                <View>
+            {/* Box Hasil Keuangan (Fintech Slate Dashboard) */}
+            <View style={styles.fintechCard}>
+              <View style={styles.fintechHeaderRow}>
+                <Text style={styles.fintechBadge}>ANALISIS KEUANGAN RIIL</Text>
+                <Text style={styles.fintechDot}>● LIVE</Text>
+              </View>
+
+              <View style={styles.fintechMetricRow}>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.metricLabelLight}>Total Modal Riil (HPP):</Text>
-                  <Text testID="metric-total-hpp" style={styles.metricValWhite}>Rp {formatRupiah(finance.totalHPP)}</Text>
+                  <Text testID="metric-total-hpp" style={styles.metricValWhite}>
+                    Rp {formatRupiah(finance.totalHPP)}
+                  </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <Text style={styles.metricLabelLight}>Keuntungan Bersih:</Text>
                   <Text
                     testID="metric-net-profit"
@@ -779,17 +942,33 @@ export default function App() {
                 </View>
               </View>
 
-              <MarginBadge margin={finance.marginPercent} />
+              {/* Status Margin Badge */}
+              <View style={{ marginTop: 10 }}>
+                <MarginBadge margin={finance.marginPercent} />
+              </View>
+
               <View style={styles.darkDivider} />
 
-              <Text style={styles.metricLabelLight}>Rekomendasi Standar Sehat (Margin 35%):</Text>
-              <Text testID="metric-recommended-price" style={styles.recPriceVal}>Rp {formatRupiah(finance.recommendedStandardPrice)}</Text>
+              {/* Rekomendasi Harga Sehat Box */}
+              <View style={styles.recPriceCardInside}>
+                <View>
+                  <Text style={styles.recPriceLabelLight}>Rekomendasi Standar Sehat (Margin 35%):</Text>
+                  <Text testID="metric-recommended-price" style={styles.recPriceVal}>
+                    Rp {formatRupiah(finance.recommendedStandardPrice)}
+                  </Text>
+                </View>
+                <View style={styles.recCheckPill}>
+                  <Text style={styles.recCheckText}>🛡️ Aman</Text>
+                </View>
+              </View>
             </View>
 
+            {/* Tombol Simpan Resep */}
             <TouchableOpacity testID="btn-save-recipe" onPress={handleSaveRecipe} style={styles.btnSaveRecipe}>
-              <Text style={styles.btnSaveRecipeText}>Simpan Resep ke Memori HP</Text>
+              <Text style={styles.btnSaveRecipeText}>💾 Simpan Resep ke Memori HP</Text>
             </TouchableOpacity>
 
+            {/* Kartu Struk WhatsApp */}
             <ShareableReceiptCard
               productName={productName}
               totalHPP={finance.totalHPP}
@@ -822,113 +1001,852 @@ export default function App() {
 }
 
 // ==========================================
-// 5. STYLESHEET LENGKAP
+// 5. STYLESHEET LENGKAP (SHADCN DESIGN TOKENS)
 // ==========================================
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
-  container: { flex: 1, padding: 16 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  pageTitle: { fontSize: 20, fontWeight: '700', color: '#0F172A' },
-  pageSubtitle: { fontSize: 12, color: '#64748B', marginTop: 2 },
-  btnPrimarySmall: { backgroundColor: '#0F172A', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 8 },
-  btnPrimarySmallText: { color: '#FFF', fontWeight: '700', fontSize: 13 },
-  centerBox: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1E293B', marginBottom: 6 },
-  emptyDesc: { fontSize: 13, color: '#64748B', textAlign: 'center', marginBottom: 18 },
-  btnLarge: { backgroundColor: '#0F172A', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 10 },
-  btnLargeText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
-  productCard: {
-    backgroundColor: '#FFF',
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  brandNavbar: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  brandLogoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  brandIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  brandIconText: {
+    fontSize: 20,
+  },
+  brandTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+    letterSpacing: -0.3,
+  },
+  brandTagline: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  pageTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+    letterSpacing: -0.4,
+  },
+  pageSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  btnPrimarySmall: {
+    backgroundColor: '#0F172A',
+    paddingVertical: 9,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  btnPrimarySmallText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  centerBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginTop: 30,
+  },
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyIconEmoji: {
+    fontSize: 32,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  emptyDesc: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 19,
+    marginBottom: 22,
+  },
+  btnLarge: {
+    backgroundColor: '#0F172A',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
     borderRadius: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  btnLargeText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  productCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  productName: { fontSize: 16, fontWeight: '700', color: '#0F172A' },
-  productPrice: { fontSize: 13, color: '#16A34A', fontWeight: '600', marginTop: 4 },
-  productMeta: { fontSize: 11, color: '#94A3B8', marginTop: 2 },
-  btnDeleteTag: { paddingVertical: 6, paddingHorizontal: 10, backgroundColor: '#FEE2E2', borderRadius: 6 },
-  btnDeleteTagText: { color: '#DC2626', fontSize: 12, fontWeight: '700' },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 4 },
+  productName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+    letterSpacing: -0.2,
+  },
+  productBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 8,
+  },
+  productPricePill: {
+    backgroundColor: '#DCFCE7',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  productPriceText: {
+    fontSize: 12,
+    color: '#15803D',
+    fontWeight: '700',
+  },
+  productMeta: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  btnDeleteTag: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+  btnDeleteTagText: {
+    color: '#DC2626',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  formGroup: {
+    marginBottom: 12,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#334155',
+    marginBottom: 6,
+  },
+  labelWithHintRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  labelHintText: {
+    fontSize: 11,
+    color: '#94A3B8',
+  },
   input: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
+    color: '#0F172A',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.02,
+    shadowRadius: 2,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+  },
+  inputPrefixSmall: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#64748B',
+    marginRight: 6,
+  },
+  inputInner: {
+    flex: 1,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#0F172A',
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
-  sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: '#1E293B' },
-  linkText: { fontSize: 13, fontWeight: '700', color: '#2563EB' },
-  dynamicRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  btnSmallIcon: { padding: 10, backgroundColor: '#F1F5F9', borderRadius: 8, marginRight: 6 },
-  btnRowDelete: { padding: 10 },
-  btnRowDeleteText: { color: '#DC2626', fontWeight: '700', fontSize: 14 },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  sectionSubtitle: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  btnSectionAction: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+  },
+  btnSectionActionText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+  dynamicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  btnConverterIcon: {
+    padding: 9,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    marginRight: 6,
+  },
+  btnRowDelete: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  btnRowDeleteText: {
+    color: '#94A3B8',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   footerSticky: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  btnFooterCancel: { flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: '#F1F5F9', alignItems: 'center' },
-  btnFooterNext: { flex: 2, paddingVertical: 12, borderRadius: 8, backgroundColor: '#0F172A', alignItems: 'center' },
-  textFooterCancel: { fontWeight: '600', color: '#475569' },
-  textFooterNext: { fontWeight: '700', color: '#FFF' },
-  btnEditOutline: { paddingVertical: 6, paddingHorizontal: 10, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8 },
-  btnEditOutlineText: { fontSize: 12, fontWeight: '600', color: '#475569' },
-  card: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 12 },
-  cardLabel: { fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 6 },
-  chip: { flex: 1, paddingVertical: 8, alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 8 },
-  chipActive: { backgroundColor: '#0F172A' },
-  chipText: { fontSize: 12, fontWeight: '700', color: '#475569' },
-  chipTextActive: { color: '#FFF' },
-  inputPrefix: { fontSize: 22, fontWeight: '700', color: '#64748B', marginRight: 6 },
-  inputHeroPrice: { flex: 1, fontSize: 24, fontWeight: '800', color: '#0F172A' },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  metricLabelLight: { fontSize: 12, color: '#94A3B8' },
-  metricValWhite: { fontSize: 20, fontWeight: '700', color: '#FFF', marginTop: 2 },
-  darkDivider: { height: 1, backgroundColor: '#334155', marginVertical: 10 },
-  recPriceVal: { fontSize: 18, fontWeight: '800', color: '#38BDF8', marginTop: 2 },
-  btnSaveRecipe: { backgroundColor: '#0F172A', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 4 },
-  btnSaveRecipeText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
-  badge: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, alignSelf: 'flex-start', marginVertical: 8 },
-  badgeText: { fontSize: 13, fontWeight: '700' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.6)', justifyContent: 'flex-end' },
-  modalSheet: { backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-  modalSubtitle: { fontSize: 13, color: '#64748B', marginBottom: 14 },
-  tabContainer: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 8, padding: 4, marginBottom: 14 },
-  tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
-  tabActive: { backgroundColor: '#FFF' },
-  tabText: { fontSize: 12, fontWeight: '600', color: '#64748B' },
-  tabTextActive: { color: '#0F172A' },
-  previewBox: { backgroundColor: '#F8FAFC', padding: 12, borderRadius: 8, alignItems: 'center', marginVertical: 8 },
-  previewLabel: { fontSize: 12, color: '#64748B' },
-  previewValue: { fontSize: 20, fontWeight: '700', color: '#16A34A', marginTop: 2 },
-  btnModalCancel: { flex: 1, paddingVertical: 12, borderRadius: 8, backgroundColor: '#F1F5F9', alignItems: 'center' },
-  btnModalApply: { flex: 2, paddingVertical: 12, borderRadius: 8, backgroundColor: '#0F172A', alignItems: 'center' },
-  textModalCancel: { fontWeight: '600', color: '#475569' },
-  textModalApply: { fontWeight: '700', color: '#FFF' },
-  receiptContainer: { backgroundColor: '#FFF', padding: 18, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
-  receiptTag: { fontSize: 10, fontWeight: '800', color: '#2563EB', letterSpacing: 1 },
-  receiptTitle: { fontSize: 18, fontWeight: '700', color: '#0F172A', marginTop: 2 },
-  divider: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 10 },
-  textGray: { fontSize: 13, color: '#64748B' },
-  textBold: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
-  recPriceText: { fontSize: 16, fontWeight: '800', color: '#0284C7', marginTop: 2 },
-  receiptFooter: { fontSize: 10, color: '#94A3B8', textAlign: 'center', marginTop: 12 },
-  btnShareWA: { backgroundColor: '#16A34A', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  btnShareWAText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  btnFooterCancel: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnFooterNext: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: 10,
+    backgroundColor: '#0F172A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  textFooterCancel: {
+    fontWeight: '600',
+    color: '#475569',
+    fontSize: 13,
+  },
+  textFooterNext: {
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  btnEditOutline: {
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  btnEditOutlineText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#334155',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  cardHelperBadge: {
+    fontSize: 10,
+    color: '#64748B',
+    backgroundColor: '#F1F5F9',
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 4,
+    fontWeight: '600',
+  },
+  chip: {
+    flex: 1,
+    paddingVertical: 9,
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  chipActive: {
+    backgroundColor: '#0F172A',
+    borderColor: '#0F172A',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  chipTextActive: {
+    color: '#FFFFFF',
+  },
+  heroCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  heroCardLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  heroPriceInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    paddingHorizontal: 12,
+  },
+  heroCurrencyPill: {
+    backgroundColor: '#E2E8F0',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  heroCurrencyText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#334155',
+  },
+  inputHeroPrice: {
+    flex: 1,
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
+    paddingVertical: 8,
+  },
+  heroCardHint: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 6,
+  },
+  fintechCard: {
+    backgroundColor: '#0F172A',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    elevation: 4,
+  },
+  fintechHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  fintechBadge: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#94A3B8',
+    letterSpacing: 1,
+  },
+  fintechDot: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#4ADE80',
+  },
+  fintechMetricRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  metricLabelLight: {
+    fontSize: 11,
+    color: '#94A3B8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  metricValWhite: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 2,
+    letterSpacing: -0.3,
+  },
+  darkDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 12,
+  },
+  recPriceCardInside: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.2)',
+    padding: 12,
+    borderRadius: 10,
+  },
+  recPriceLabelLight: {
+    fontSize: 11,
+    color: '#7DD3FC',
+    fontWeight: '600',
+  },
+  recPriceVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#38BDF8',
+    marginTop: 2,
+  },
+  recCheckPill: {
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  recCheckText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#38BDF8',
+  },
+  btnSaveRecipe: {
+    backgroundColor: '#0F172A',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 2,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  btnSaveRecipeText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  badgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  modalGrabber: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCloseBtnText: {
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '700',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    padding: 4,
+    marginBottom: 14,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 9,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  tabActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  tabTextActive: {
+    color: '#0F172A',
+    fontWeight: '700',
+  },
+  previewBox: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  previewLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#15803D',
+  },
+  previewValue: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#16A34A',
+    marginTop: 2,
+  },
+  previewSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  btnModalCancel: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnModalApply: {
+    flex: 2,
+    paddingVertical: 13,
+    borderRadius: 10,
+    backgroundColor: '#0F172A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textModalCancel: {
+    fontWeight: '600',
+    color: '#475569',
+    fontSize: 13,
+  },
+  textModalApply: {
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontSize: 14,
+  },
+  receiptContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  receiptTopHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  receiptBrandBadge: {
+    backgroundColor: '#EFF6FF',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+  },
+  receiptTag: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#2563EB',
+    letterSpacing: 0.8,
+  },
+  receiptDate: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  receiptTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginTop: 2,
+  },
+  receiptDesc: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  dashedDivider: {
+    height: 1,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    marginVertical: 12,
+  },
+  receiptRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  receiptRowLabel: {
+    fontSize: 13,
+    color: '#64748B',
+  },
+  receiptRowValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  receiptRecBox: {
+    backgroundColor: '#F0F9FF',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+  },
+  receiptRecLabel: {
+    fontSize: 11,
+    color: '#0369A1',
+    fontWeight: '600',
+  },
+  receiptRecValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#0284C7',
+    marginTop: 2,
+  },
+  receiptFooter: {
+    fontSize: 10,
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  btnShareWA: {
+    backgroundColor: '#25D366',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#25D366',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  btnShareWAText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 14,
+  },
 });
