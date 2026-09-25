@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
   View,
   Text,
@@ -13,6 +11,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { captureRef } from 'react-native-view-shot';
@@ -154,7 +153,7 @@ const MarginBadge: React.FC<{ margin: number }> = ({ margin }) => {
   }
 
   return (
-    <View style={[styles.badge, { backgroundColor: bg }]}>
+    <View testID="badge-margin" style={[styles.badge, { backgroundColor: bg }]}>
       <Text style={[styles.badgeText, { color: textCol }]}>
         {label} ({margin}%)
       </Text>
@@ -189,12 +188,13 @@ const UnitConverterModal: React.FC<{
   return (
     <Modal animationType="slide" transparent visible={visible} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalSheet}>
+        <View testID="converter-modal" style={styles.modalSheet}>
           <Text style={styles.modalTitle}>Bantu Hitung Satuan Takaran</Text>
           <Text style={styles.modalSubtitle}>Hitung otomatis modal bahan sachet / gram</Text>
 
           <View style={styles.tabContainer}>
             <TouchableOpacity
+              testID="converter-tab-weight"
               onPress={() => setMode('weight')}
               style={[styles.tab, mode === 'weight' && styles.tabActive]}
             >
@@ -203,6 +203,7 @@ const UnitConverterModal: React.FC<{
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="converter-tab-packaging"
               onPress={() => setMode('packaging')}
               style={[styles.tab, mode === 'packaging' && styles.tabActive]}
             >
@@ -214,6 +215,7 @@ const UnitConverterModal: React.FC<{
 
           <Text style={styles.fieldLabel}>Harga Beli Kemasan / Grosir (Rp):</Text>
           <TextInput
+            testID="converter-input-price"
             keyboardType="numeric"
             placeholder="Contoh: 40000"
             value={price}
@@ -227,6 +229,7 @@ const UnitConverterModal: React.FC<{
                 {mode === 'weight' ? 'Kapasitas (Kg):' : 'Isi Kemasan (Pcs):'}
               </Text>
               <TextInput
+                testID="converter-input-capacity"
                 keyboardType="numeric"
                 value={capacity}
                 onChangeText={(t) => setCapacity(t.replace(/[^0-9]/g, ''))}
@@ -238,6 +241,7 @@ const UnitConverterModal: React.FC<{
                 {mode === 'weight' ? 'Pakai (Gram):' : 'Pakai (Sachet/Pcs):'}
               </Text>
               <TextInput
+                testID="converter-input-usage"
                 keyboardType="numeric"
                 placeholder={mode === 'weight' ? 'Misal: 25' : 'Misal: 1'}
                 value={usage}
@@ -249,14 +253,14 @@ const UnitConverterModal: React.FC<{
 
           <View style={styles.previewBox}>
             <Text style={styles.previewLabel}>Biaya Modal yang Terpakai:</Text>
-            <Text style={styles.previewValue}>Rp {formatRupiah(result)}</Text>
+            <Text testID="converter-preview-cost" style={styles.previewValue}>Rp {formatRupiah(result)}</Text>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-            <TouchableOpacity onPress={onClose} style={styles.btnModalCancel}>
+            <TouchableOpacity testID="converter-btn-cancel" onPress={onClose} style={styles.btnModalCancel}>
               <Text style={styles.textModalCancel}>Batal</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleApply} style={styles.btnModalApply}>
+            <TouchableOpacity testID="converter-btn-apply" onPress={handleApply} style={styles.btnModalApply}>
               <Text style={styles.textModalApply}>Pakai Nilai Ini</Text>
             </TouchableOpacity>
           </View>
@@ -331,7 +335,7 @@ const ShareableReceiptCard: React.FC<{
         <Text style={styles.receiptFooter}>Dihitung via Kalkulator Modal UMKM</Text>
       </View>
 
-      <TouchableOpacity disabled={sharing} onPress={handleShare} style={styles.btnShareWA}>
+      <TouchableOpacity testID="btn-share-whatsapp" disabled={sharing} onPress={handleShare} style={styles.btnShareWA}>
         {sharing ? (
           <ActivityIndicator color="#FFF" />
         ) : (
@@ -492,8 +496,8 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+    <View style={styles.safeArea}>
+      <StatusBar style="dark" backgroundColor="#F8FAFC" />
 
       {/* ================= LAYAR 1: HOME ================= */}
       {screen === 'home' && (
@@ -503,7 +507,7 @@ export default function App() {
               <Text style={styles.pageTitle}>Katalog Resep Modal</Text>
               <Text style={styles.pageSubtitle}>{savedProducts.length} / {MAX_SAVED_PRODUCTS} Resep Tersimpan Offline</Text>
             </View>
-            <TouchableOpacity onPress={handleStartNew} style={styles.btnPrimarySmall}>
+            <TouchableOpacity testID="btn-start-new" onPress={handleStartNew} style={styles.btnPrimarySmall}>
               <Text style={styles.btnPrimarySmallText}>+ Buat Baru</Text>
             </TouchableOpacity>
           </View>
@@ -514,7 +518,7 @@ export default function App() {
               <Text style={styles.emptyDesc}>
                 Mulai hitung HPP produk lele marinasi, kerajinan, atau jualan Anda agar tidak rugi pasang harga.
               </Text>
-              <TouchableOpacity onPress={handleStartNew} style={styles.btnLarge}>
+              <TouchableOpacity testID="empty-btn-start" onPress={handleStartNew} style={styles.btnLarge}>
                 <Text style={styles.btnLargeText}>Mulai Hitung Modal</Text>
               </TouchableOpacity>
             </View>
@@ -524,7 +528,7 @@ export default function App() {
               keyExtractor={(item) => item.id}
               contentContainerStyle={{ paddingBottom: 30 }}
               renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleOpenProduct(item)} style={styles.productCard}>
+                <TouchableOpacity testID={`card-product-${item.id}`} onPress={() => handleOpenProduct(item)} style={styles.productCard}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.productName}>{item.name}</Text>
                     <Text style={styles.productPrice}>Rencana Jual: Rp {formatRupiah(item.targetSellingPrice)}</Text>
@@ -532,7 +536,7 @@ export default function App() {
                       {item.materials.length} Bahan • {item.overheads.length} Biaya Tambahan
                     </Text>
                   </View>
-                  <TouchableOpacity onPress={() => handleDeleteProduct(item.id)} style={styles.btnDeleteTag}>
+                  <TouchableOpacity testID={`btn-delete-product-${item.id}`} onPress={() => handleDeleteProduct(item.id)} style={styles.btnDeleteTag}>
                     <Text style={styles.btnDeleteTagText}>Hapus</Text>
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -550,6 +554,7 @@ export default function App() {
 
             <Text style={styles.fieldLabel}>Nama Produk:</Text>
             <TextInput
+              testID="input-product-name"
               maxLength={80}
               placeholder="Misal: Lele Marinasi Siap Masak 500g"
               value={productName}
@@ -559,6 +564,7 @@ export default function App() {
 
             <Text style={styles.fieldLabel}>Persentase Susut Bahan Mentah (%):</Text>
             <TextInput
+              testID="input-waste-percent"
               keyboardType="numeric"
               maxLength={2}
               placeholder="Misal: 15 (ikan dibersihkan insang susut 15%)"
@@ -571,6 +577,7 @@ export default function App() {
             <View style={styles.sectionRow}>
               <Text style={styles.sectionTitle}>Komponen Bahan Baku</Text>
               <TouchableOpacity
+                testID="btn-add-material"
                 onPress={() =>
                   setMaterials([
                     ...materials,
@@ -585,6 +592,7 @@ export default function App() {
             {materials.map((item, idx) => (
               <View key={item.id} style={styles.dynamicRow}>
                 <TextInput
+                  testID={`input-material-name-${idx}`}
                   maxLength={60}
                   placeholder="Nama Bahan (Bawang/Lele)"
                   value={item.name}
@@ -596,6 +604,7 @@ export default function App() {
                   style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
                 />
                 <TextInput
+                  testID={`input-material-amount-${idx}`}
                   keyboardType="numeric"
                   maxLength={12}
                   placeholder="Biaya (Rp)"
@@ -608,6 +617,7 @@ export default function App() {
                   style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
                 />
                 <TouchableOpacity
+                  testID={`btn-material-convert-${idx}`}
                   onPress={() => {
                     setActiveMaterialIdx(idx);
                     setConverterVisible(true);
@@ -617,6 +627,7 @@ export default function App() {
                   <Text style={{ fontSize: 16 }}>⚖️</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID={`btn-material-delete-${idx}`}
                   onPress={() => setMaterials(materials.filter((_, i) => i !== idx))}
                   style={styles.btnRowDelete}
                 >
@@ -629,6 +640,7 @@ export default function App() {
             <View style={[styles.sectionRow, { marginTop: 18 }]}>
               <Text style={styles.sectionTitle}>Kemasan & Operasional</Text>
               <TouchableOpacity
+                testID="btn-add-overhead"
                 onPress={() =>
                   setOverheads([
                     ...overheads,
@@ -643,6 +655,7 @@ export default function App() {
             {overheads.map((item, idx) => (
               <View key={item.id} style={styles.dynamicRow}>
                 <TextInput
+                  testID={`input-overhead-name-${idx}`}
                   maxLength={60}
                   placeholder="Kemasan / Stiker / Gas / Listrik"
                   value={item.name}
@@ -654,6 +667,7 @@ export default function App() {
                   style={[styles.input, { flex: 2, marginBottom: 0, marginRight: 6 }]}
                 />
                 <TextInput
+                  testID={`input-overhead-amount-${idx}`}
                   keyboardType="numeric"
                   maxLength={12}
                   placeholder="Biaya (Rp)"
@@ -666,6 +680,7 @@ export default function App() {
                   style={[styles.input, { flex: 1.4, marginBottom: 0, marginRight: 6 }]}
                 />
                 <TouchableOpacity
+                  testID={`btn-overhead-delete-${idx}`}
                   onPress={() => setOverheads(overheads.filter((_, i) => i !== idx))}
                   style={styles.btnRowDelete}
                 >
@@ -681,6 +696,7 @@ export default function App() {
               <Text style={styles.textFooterCancel}>Batal</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="btn-next-simulator"
               onPress={() => {
                 if (!productName.trim()) {
                   Alert.alert('Nama Wajib Diisi', 'Silakan isi nama produk terlebih dahulu.');
@@ -702,7 +718,7 @@ export default function App() {
           <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
             <View style={styles.headerRow}>
               <Text style={[styles.pageTitle, { flex: 1 }]}>Uji Harga: {productName}</Text>
-              <TouchableOpacity onPress={() => setScreen('builder')} style={styles.btnEditOutline}>
+              <TouchableOpacity testID="btn-edit-recipe" onPress={() => setScreen('builder')} style={styles.btnEditOutline}>
                 <Text style={styles.btnEditOutlineText}>Edit Resep</Text>
               </TouchableOpacity>
             </View>
@@ -713,6 +729,7 @@ export default function App() {
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 4 }}>
                 {[0, 10, 20, 30].map((rate) => (
                   <TouchableOpacity
+                    testID={`chip-inflation-${rate}`}
                     key={rate}
                     onPress={() => setInflationBuffer(rate)}
                     style={[styles.chip, inflationBuffer === rate && styles.chipActive]}
@@ -731,6 +748,7 @@ export default function App() {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={styles.inputPrefix}>Rp</Text>
                 <TextInput
+                  testID="input-selling-price"
                   keyboardType="numeric"
                   maxLength={12}
                   value={sellingPrice}
@@ -745,11 +763,12 @@ export default function App() {
               <View style={styles.rowBetween}>
                 <View>
                   <Text style={styles.metricLabelLight}>Total Modal Riil (HPP):</Text>
-                  <Text style={styles.metricValWhite}>Rp {formatRupiah(finance.totalHPP)}</Text>
+                  <Text testID="metric-total-hpp" style={styles.metricValWhite}>Rp {formatRupiah(finance.totalHPP)}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={styles.metricLabelLight}>Keuntungan Bersih:</Text>
                   <Text
+                    testID="metric-net-profit"
                     style={[
                       styles.metricValWhite,
                       { color: finance.netProfit >= 0 ? '#4ADE80' : '#F87171' },
@@ -764,10 +783,10 @@ export default function App() {
               <View style={styles.darkDivider} />
 
               <Text style={styles.metricLabelLight}>Rekomendasi Standar Sehat (Margin 35%):</Text>
-              <Text style={styles.recPriceVal}>Rp {formatRupiah(finance.recommendedStandardPrice)}</Text>
+              <Text testID="metric-recommended-price" style={styles.recPriceVal}>Rp {formatRupiah(finance.recommendedStandardPrice)}</Text>
             </View>
 
-            <TouchableOpacity onPress={handleSaveRecipe} style={styles.btnSaveRecipe}>
+            <TouchableOpacity testID="btn-save-recipe" onPress={handleSaveRecipe} style={styles.btnSaveRecipe}>
               <Text style={styles.btnSaveRecipeText}>Simpan Resep ke Memori HP</Text>
             </TouchableOpacity>
 
@@ -798,7 +817,7 @@ export default function App() {
           }
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
