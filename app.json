@@ -6,24 +6,22 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FEF3DF"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.wilhelmart.meracikide",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FEF3DF",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundImage": "./assets/android-icon-background.png"
       },
       "predictiveBackGestureEnabled": false
-    },
-    "updates": {
-      "url": "https://u.expo.dev/f96dd22d-d912-4fbd-b6d6-1a70df1f4255"
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
     },
     "web": {
       "favicon": "./assets/favicon.png"
