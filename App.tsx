@@ -1011,7 +1011,7 @@ const styles = StyleSheet.create({
   brandNavbar: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 42,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
