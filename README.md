@@ -1,5 +1,7 @@
 # Meracik Ide 💡
 
+[![Release](https://img.shields.io/github/v/release/Wilhelm-art/meracik-ide?label=APK%20Release&color=success&logo=android)](https://github.com/Wilhelm-art/meracik-ide/releases/latest)
+[![Download APK](https://img.shields.io/badge/Download-APK%20(v1.0.0)-blue?logo=android&logoColor=white)](https://github.com/Wilhelm-art/meracik-ide/releases/download/v1.0.0/meracik-ide-v1.0.0.apk)
 [![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
 [![Expo SDK](https://img.shields.io/badge/Expo_SDK-57-black?logo=expo&logoColor=white)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
