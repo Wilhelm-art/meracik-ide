@@ -6,11 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FEF3DF"
-    },
     "ios": {
       "supportsTablet": true
     },
@@ -31,6 +26,17 @@
         "projectId": "f96dd22d-d912-4fbd-b6d6-1a70df1f4255"
       }
     },
-    "owner": "wilhelm-art"
+    "owner": "wilhelm-art",
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FEF3DF",
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain"
+        }
+      ]
+    ]
   }
 }

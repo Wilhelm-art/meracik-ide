@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Git
+.git/
+
+# Builds & Caches
+.expo/
+dist/
+web-build/
+playwright-report/
+test-results/
+*.apk
+*.aab

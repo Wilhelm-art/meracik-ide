@@ -47,4 +47,5 @@ test-results/
 # builds & artifacts
 *.apk
 *.aab
-*.png
+/*.png
+!assets/**
